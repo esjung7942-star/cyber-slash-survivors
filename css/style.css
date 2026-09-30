@@ -1,0 +1,538 @@
+:root {
+  --primary-cyan: #00f3ff;
+  --primary-magenta: #ff0055;
+  --primary-purple: #7928ca;
+  --primary-gold: #ffb703;
+  --bg-dark: #0a0a12;
+  --panel-bg: rgba(14, 14, 28, 0.85);
+  --border-glow: rgba(0, 243, 255, 0.4);
+  --text-main: #ffffff;
+  --text-muted: #8b9bb4;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  user-select: none;
+}
+
+body, html {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--bg-dark);
+  font-family: 'Pretendard', sans-serif;
+  color: var(--text-main);
+}
+
+#game-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* === HUD 스타일 === */
+.hud-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.hud-top-bar {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: var(--panel-bg);
+  padding: 10px 24px;
+  border-radius: 30px;
+  border: 1px solid var(--border-glow);
+  box-shadow: 0 0 20px rgba(0, 243, 255, 0.15);
+  backdrop-filter: blur(8px);
+}
+
+.hud-stat-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 60px;
+}
+
+.hud-stat-box .label {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--text-muted);
+  letter-spacing: 1.5px;
+}
+
+.hud-stat-box .value {
+  font-family: 'Teko', sans-serif;
+  font-size: 26px;
+  line-height: 1;
+  color: #fff;
+  letter-spacing: 1px;
+}
+
+.hud-exp-container {
+  display: flex;
+  flex-direction: column;
+  width: 260px;
+  gap: 4px;
+}
+
+.hud-exp-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.level-badge {
+  font-weight: 900;
+  font-size: 13px;
+  color: var(--primary-cyan);
+  text-shadow: 0 0 8px rgba(0, 243, 255, 0.8);
+}
+
+.exp-count {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.exp-bar-bg {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.exp-bar-fill {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-cyan), #00ffaa);
+  box-shadow: 0 0 10px var(--primary-cyan);
+  transition: width 0.2s ease-out;
+}
+
+/* 좌하단 체력 및 대시 */
+.hud-bottom-left {
+  position: absolute;
+  bottom: 24px;
+  left: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--panel-bg);
+  padding: 14px 18px;
+  border-radius: 12px;
+  border: 1px solid var(--border-glow);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  width: 220px;
+}
+
+.bar-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #cbd5e1;
+  margin-bottom: 4px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.hp-bar-bg, .dash-bar-bg {
+  width: 100%;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.hp-bar-fill {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #ff0055, #ff5500);
+  box-shadow: 0 0 8px #ff0055;
+  transition: width 0.15s ease;
+}
+
+.dash-bar-fill {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #00f3ff, #3a86ff);
+  box-shadow: 0 0 8px #00f3ff;
+  transition: width 0.05s linear;
+}
+
+.charge-bar-fill {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #ff0077, #ffe600);
+  box-shadow: 0 0 8px #ff0077;
+  transition: width 0.05s linear;
+}
+
+/* 우상단 옵션 */
+.hud-top-right {
+  position: absolute;
+  top: 16px;
+  right: 24px;
+  display: flex;
+  gap: 8px;
+  pointer-events: auto;
+}
+
+.hud-icon-btn {
+  background: var(--panel-bg);
+  border: 1px solid var(--border-glow);
+  color: #fff;
+  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.hud-icon-btn:hover {
+  background: rgba(0, 243, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+/* 무기 장착 아이콘 */
+.weapon-slots-container {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  gap: 8px;
+}
+
+.weapon-slot-icon {
+  width: 44px;
+  height: 44px;
+  background: var(--panel-bg);
+  border: 1px solid var(--border-glow);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  position: relative;
+  box-shadow: 0 0 10px rgba(0, 243, 255, 0.1);
+}
+
+.weapon-slot-level {
+  position: absolute;
+  bottom: 2px;
+  right: 4px;
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--primary-cyan);
+}
+
+/* === 오버레이 공통 === */
+.overlay-screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 50;
+  background: rgba(8, 8, 16, 0.85);
+  backdrop-filter: blur(10px);
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.overlay-screen.hidden {
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+/* 타이틀 화면 */
+.title-content {
+  text-align: center;
+  max-width: 600px;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 2;
+}
+
+.badge-tag {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  color: var(--primary-cyan);
+  margin-bottom: 8px;
+  padding: 4px 12px;
+  border-radius: 12px;
+  background: rgba(0, 243, 255, 0.1);
+  border: 1px solid rgba(0, 243, 255, 0.3);
+}
+
+.game-title {
+  font-family: 'Teko', sans-serif;
+  font-size: 88px;
+  letter-spacing: 4px;
+  line-height: 0.9;
+  margin-bottom: 16px;
+  color: #fff;
+  text-shadow: 0 0 25px rgba(0, 243, 255, 0.6);
+}
+
+.game-title .highlight {
+  color: var(--primary-magenta);
+  text-shadow: 0 0 25px rgba(255, 0, 85, 0.8);
+}
+
+.game-desc {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #cbd5e1;
+  margin-bottom: 24px;
+}
+
+.controls-guide {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 16px 24px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 30px;
+  width: 100%;
+}
+
+.ctrl-item {
+  font-size: 13px;
+  color: #e2e8f0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+kbd {
+  background: #1e1e38;
+  border: 1px solid #4a4a75;
+  border-bottom-width: 3px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 12px;
+  color: var(--primary-cyan);
+  font-weight: bold;
+}
+
+/* 공통 사이버 버튼 */
+.cyber-btn {
+  background: linear-gradient(135deg, var(--primary-cyan), #0077ff);
+  border: none;
+  color: #000;
+  font-size: 18px;
+  font-weight: 800;
+  padding: 16px 40px;
+  border-radius: 8px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  box-shadow: 0 0 25px rgba(0, 243, 255, 0.5);
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.cyber-btn:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 0 35px rgba(0, 243, 255, 0.8);
+}
+
+.cyber-btn:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+.cyber-btn.secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: none;
+}
+
+.cyber-btn.secondary:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* 레벨업 모달 */
+.modal-box {
+  background: var(--panel-bg);
+  border: 1px solid var(--border-glow);
+  padding: 32px;
+  border-radius: 20px;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 243, 255, 0.2);
+  text-align: center;
+  max-width: 800px;
+  width: 90%;
+  animation: popIn 0.3s ease-out;
+}
+
+.modal-box.small {
+  max-width: 400px;
+}
+
+.level-up-header .sub {
+  color: var(--primary-gold);
+  font-weight: 900;
+  font-size: 16px;
+  letter-spacing: 2px;
+}
+
+.level-up-header h2 {
+  font-size: 26px;
+  margin-top: 4px;
+  margin-bottom: 24px;
+}
+
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.upgrade-card {
+  background: rgba(25, 25, 48, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 22px 18px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.upgrade-card:hover {
+  border-color: var(--primary-cyan);
+  box-shadow: 0 0 25px rgba(0, 243, 255, 0.4);
+  transform: translateY(-6px);
+  background: rgba(35, 35, 68, 0.95);
+}
+
+.upgrade-icon {
+  font-size: 40px;
+  margin-bottom: 12px;
+}
+
+.upgrade-title {
+  font-size: 17px;
+  font-weight: 800;
+  margin-bottom: 4px;
+  color: #fff;
+}
+
+.upgrade-level {
+  font-size: 11px;
+  color: var(--primary-cyan);
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.upgrade-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+/* 게임 오버 */
+.game-over-box {
+  max-width: 520px;
+}
+
+.game-over-title {
+  font-family: 'Teko', sans-serif;
+  font-size: 56px;
+  letter-spacing: 2px;
+  color: var(--primary-magenta);
+  text-shadow: 0 0 25px rgba(255, 0, 85, 0.8);
+  margin-bottom: 4px;
+}
+
+.game-over-sub {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-card .stat-label {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.stat-card .stat-val {
+  font-family: 'Teko', sans-serif;
+  font-size: 32px;
+  color: #fff;
+}
+
+.button-group {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+@keyframes popIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
